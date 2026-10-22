@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import time
 
 from khulnasoft.functions.cache import get_cache
 
@@ -21,7 +20,7 @@ async def main() -> None:
     print("Cache set/get ok")
 
     # TTL expiry check
-    time.sleep(3)
+    await asyncio.sleep(3)
     expired = await cache.get(key)
     assert expired is None
     print("TTL expiry ok")

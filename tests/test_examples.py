@@ -18,6 +18,7 @@ def test_examples_run() -> None:
         print(f"Running {script_path.name}")
         result = subprocess.run(
             [sys.executable, str(script_path)],
+            check=False,
             capture_output=True,
             text=True,
             timeout=45,

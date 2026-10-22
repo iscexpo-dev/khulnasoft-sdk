@@ -107,8 +107,8 @@ def _get_cache_implementation(debug: bool = False) -> RuntimeCache:
         try:
             parsed_headers = json.loads(headers)
             if not isinstance(parsed_headers, dict):
-                raise ValueError("RUNTIME_CACHE_HEADERS must be a JSON object")
-        except Exception as e:
+                raise TypeError("RUNTIME_CACHE_HEADERS must be a JSON object")
+        except (ValueError, TypeError, json.JSONDecodeError) as e:
             print("Failed to parse RUNTIME_CACHE_HEADERS:", e)
             return _in_memory_cache_instance
         _build_cache_instance = BuildCache(

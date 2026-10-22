@@ -37,7 +37,7 @@ class BuildCache:
                     return None
                 return r.json()
             raise RuntimeError(f"Failed to get cache: {r.status_code} {r.reason_phrase}")
-        except Exception as e:
+        except (httpx.HTTPError, RuntimeError, ValueError) as e:
             if self._on_error:
                 self._on_error(e)
             return None
@@ -52,9 +52,8 @@ class BuildCache:
             optional_headers: dict[str, str] = {}
             if options and (ttl := options.get("ttl")):
                 optional_headers[HEADERS_KHULNASOFT_REVALIDATE] = str(ttl)
-            if options and (tags := options.get("tags")):
-                if tags:
-                    optional_headers[HEADERS_KHULNASOFT_CACHE_TAGS] = ",".join(tags)
+            if options and (tags := options.get("tags")) and tags:
+                optional_headers[HEADERS_KHULNASOFT_CACHE_TAGS] = ",".join(tags)
             if options and (name := options.get("name")):
                 optional_headers[HEADERS_KHULNASOFT_CACHE_ITEM_NAME] = name
 
@@ -65,7 +64,7 @@ class BuildCache:
             )
             if r.status_code != 200:
                 raise RuntimeError(f"Failed to set cache: {r.status_code} {r.reason_phrase}")
-        except Exception as e:
+        except (httpx.HTTPError, RuntimeError, ValueError) as e:
             if self._on_error:
                 self._on_error(e)
 
@@ -74,7 +73,7 @@ class BuildCache:
             r = await self._client.delete(self._endpoint + key, headers=self._headers)
             if r.status_code != 200:
                 raise RuntimeError(f"Failed to delete cache: {r.status_code} {r.reason_phrase}")
-        except Exception as e:
+        except (httpx.HTTPError, RuntimeError, ValueError) as e:
             if self._on_error:
                 self._on_error(e)
 
@@ -88,6 +87,6 @@ class BuildCache:
             )
             if r.status_code != 200:
                 raise RuntimeError(f"Failed to revalidate tag: {r.status_code} {r.reason_phrase}")
-        except Exception as e:
+        except (httpx.HTTPError, RuntimeError, ValueError) as e:
             if self._on_error:
                 self._on_error(e)

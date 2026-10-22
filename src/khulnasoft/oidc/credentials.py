@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import os
 from dataclasses import dataclass
 
@@ -27,12 +28,10 @@ def get_credentials(
         project = os.getenv("KHULNASOFT_PROJECT_ID")
         team = os.getenv("KHULNASOFT_TEAM_ID")
         if not (project and team):
-            try:
+            with contextlib.suppress(ValueError, KeyError, TypeError, UnicodeDecodeError):
                 payload = decode_oidc_payload(oidc)
                 project = payload.get("project_id")
                 team = payload.get("owner_id")
-            except Exception:
-                pass
         if project and team:
             return Credentials(token=oidc, project_id=project, team_id=team)
         raise RuntimeError(

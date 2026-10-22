@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import contextlib
 import json
 import os
 import sys
@@ -101,10 +102,8 @@ def save_token(token: KhulnasoftTokenResponse, project_id: str) -> None:
         token_path = os.path.join(directory, f"{project_id}.json")
         with open(token_path, "w", encoding="utf-8") as f:
             json.dump({"token": token.token}, f)
-        try:
+        with contextlib.suppress(OSError):
             os.chmod(token_path, 0o600)
-        except Exception:
-            pass
     except Exception as e:
         raise RuntimeError("Failed to save token") from e
 
