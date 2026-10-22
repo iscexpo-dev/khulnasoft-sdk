@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import urllib.parse
-from typing import TypedDict, Protocol
+from typing import Protocol, TypedDict
 
 __all__ = [
-    "ip_address",
-    "geolocation",
     "Geo",
+    "geolocation",
+    "ip_address",
 ]
 
 

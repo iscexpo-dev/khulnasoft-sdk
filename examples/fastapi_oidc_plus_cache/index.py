@@ -4,9 +4,8 @@ from typing import Callable
 
 from fastapi import FastAPI, Request
 
-from khulnasoft.functions import set_headers, get_cache
-from khulnasoft.oidc import get_khulnasoft_oidc_token, decode_oidc_payload
-
+from khulnasoft.functions import get_cache, set_headers
+from khulnasoft.oidc import decode_oidc_payload, get_khulnasoft_oidc_token
 
 app = FastAPI()
 

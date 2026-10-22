@@ -3,13 +3,13 @@ from __future__ import annotations
 import os
 
 from .token_util import (
+    fetch_khulnasoft_oidc_token,
     find_project_info,
-    get_token_payload,
     get_khulnasoft_cli_token,
+    get_token_payload,
     is_expired,
     load_token,
     save_token,
-    fetch_khulnasoft_oidc_token,
 )
 
 

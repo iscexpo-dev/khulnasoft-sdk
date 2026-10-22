@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
-import httpx
-from typing import Callable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Callable
 
+import httpx
 
 HEADERS_KHULNASOFT_CACHE_STATE = "x-khulnasoft-cache-state"
 HEADERS_KHULNASOFT_REVALIDATE = "x-khulnasoft-revalidate"

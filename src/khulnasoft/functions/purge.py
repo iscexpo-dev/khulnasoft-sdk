@@ -5,8 +5,8 @@ from typing import Any
 from ._context import get_context
 
 __all__ = [
-    "invalidate_by_tag",
     "dangerously_delete_by_tag",
+    "invalidate_by_tag",
 ]
 
 

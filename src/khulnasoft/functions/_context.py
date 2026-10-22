@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Awaitable, Mapping
 from contextvars import ContextVar
 from dataclasses import dataclass
-from typing import Any, Awaitable, Callable, Mapping, Protocol
+from typing import Any, Callable, Protocol
 
 
 class PurgeAPI(Protocol):
