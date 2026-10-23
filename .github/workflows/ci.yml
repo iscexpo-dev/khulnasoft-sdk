@@ -10,6 +10,12 @@ jobs:
   lint-test-and-build:
     name: lint-test-and-build
     runs-on: ubuntu-latest
+    environment: ci
+    env:
+      BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+      KHULNASOFT_PROJECT_ID: ${{ secrets.KHULNASOFT_PROJECT_ID }}
+      KHULNASOFT_TEAM_ID: ${{ secrets.KHULNASOFT_TEAM_ID }}
+      KHULNASOFT_TOKEN: ${{ secrets.KHULNASOFT_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,13 +31,20 @@ jobs:
 
       - name: Lint
         run: |
-          uv run ruff format
-          uv run ruff check --fix .
+          # The CI ensures that the code is formatted and complain if not.
+          # It's on US to commit already formatted clean code.
+          uv run ruff check
+
+      - name: Typecheck
+        run: |
           uv run mypy src
-          uv run python -c "import khulnasoft, khulnasoft.cache, khulnasoft.headers, khulnasoft.oidc"
+          uv run python -c "import khulnasoft, khulnasoft.cache, khulnasoft.headers, khulnasoft.oidc, khulnasoft.sandbox"
 
       - name: Run tests
-        run: uv run pytest -v
+        run: uv run pytest -v --capture=tee-sys --ignore=tests/test_examples.py
+
+      - name: Run example tests
+        run: uv run pytest -v --capture=tee-sys tests/test_examples.py -n auto
 
       - name: Build package
         run: uv run python -m build
