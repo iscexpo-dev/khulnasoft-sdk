@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 
+from ..cache._context import get_headers
 from .token_util import (
     fetch_khulnasoft_oidc_token,
     find_project_info,
@@ -22,17 +23,25 @@ class KhulnasoftOidcTokenError(Exception):
 
 
 def get_khulnasoft_oidc_token_sync() -> str:
-    token = os.getenv("KHULNASOFT_OIDC_TOKEN")
-    if not token:
+    # Prefer request header (set via khulnasoft.headers.set_headers middleware),
+    # fall back to environment variable like the TypeScript SDK.
+    headers = get_headers()
+    if headers:
+        token_from_header = headers.get("x-khulnasoft-oidc-token")
+        if token_from_header:
+            return token_from_header
+
+    token_from_env = os.getenv("KHULNASOFT_OIDC_TOKEN")
+    if not token_from_env:
         raise KhulnasoftOidcTokenError(
             "The 'x-khulnasoft-oidc-token' header is missing from the request. Do you have the OIDC option enabled in the KhulnaSoft project settings?"
         )
-    return token
+    return token_from_env
 
 
 async def refresh_token() -> None:
     project = find_project_info()
-    project_id = project["projectId"]
+    project_id: str = project["projectId"]
     team_id = project.get("teamId")
 
     maybe = load_token(project_id)

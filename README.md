@@ -16,7 +16,7 @@ pip install khulnasoft-sdk
 ## Basic usage
 
 ```python
-from khulnasoft.functions.headers import get_headers
+from khulnasoft.headers import get_headers
 ```
 
 ## License

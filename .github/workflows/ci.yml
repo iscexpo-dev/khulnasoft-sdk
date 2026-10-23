@@ -28,7 +28,7 @@ jobs:
           uv run ruff format
           uv run ruff check --fix .
           uv run mypy src
-          uv run python -c "import khulnasoft, khulnasoft.functions, khulnasoft.oidc"
+          uv run python -c "import khulnasoft, khulnasoft.cache, khulnasoft.headers, khulnasoft.oidc"
 
       - name: Run tests
         run: uv run pytest -v

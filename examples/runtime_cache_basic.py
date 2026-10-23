@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
-from khulnasoft.functions.cache import get_cache
+from khulnasoft.cache import get_cache
 
 
 async def main() -> None:

@@ -3,10 +3,14 @@ from __future__ import annotations
 import urllib.parse
 from typing import Protocol, TypedDict
 
+from .cache._context import get_headers, set_headers
+
 __all__ = [
     "Geo",
     "geolocation",
+    "get_headers",
     "ip_address",
+    "set_headers",
 ]
 
 
