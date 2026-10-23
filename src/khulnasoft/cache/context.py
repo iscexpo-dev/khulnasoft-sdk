@@ -1,27 +1,10 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from contextvars import ContextVar
 from dataclasses import dataclass
-from typing import Any, Callable, Protocol
 
-
-class PurgeAPI(Protocol):
-    """Protocol for the purge API object."""
-
-    def invalidate_by_tag(self, tag: str | list[str]) -> Any:
-        """Invalidate cache entries by tag."""
-        ...
-
-    def dangerously_delete_by_tag(
-        self,
-        tag: str | list[str],
-        *,
-        revalidation_deadline_seconds: int | None = None,
-    ) -> Any:
-        """Dangerously delete cache entries by tag."""
-        ...
-
+from .types import PurgeAPI
 
 _cv_wait_until: ContextVar[Callable[[Awaitable[object]], None] | None] = ContextVar(
     "khulnasoft_wait_until", default=None
