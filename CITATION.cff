@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "KhulnaSoft Python SDK"
+authors:
+  - given-names: "FortiShield"
+    family-names: ""
+    email: "161459699+FortiShield@users.noreply.github.com"
+version: 0.3.0
+date-released: "2026-10-23"
+license: "MIT"
+repository-code: "https://github.com/khulnasoft-bot/khulnasoft-py"
+url: "https://github.com/khulnasoft-bot/khulnasoft-py"
+abstract: "Python SDK for KhulnaSoft providing blob storage, caching, and OIDC integrations."
+keywords:
+  - khulnasoft
+  - sdk
+  - blob-storage
+  - caching
+  - oidc
+  - fastapi
