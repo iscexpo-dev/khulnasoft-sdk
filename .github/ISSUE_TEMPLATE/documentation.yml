@@ -1,0 +1,64 @@
+name: 📖 Documentation Issue
+description: Report documentation issues or suggest improvements
+title: "[DOCS]: "
+labels: ["documentation", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us improve our documentation! Please fill out the information below.
+  - type: dropdown
+    id: type
+    attributes:
+      label: Documentation Type
+      options:
+        - Incorrect content
+        - Outdated information
+        - Missing documentation
+        - Clarity/Readability issue
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: location
+    attributes:
+      label: Location
+      description: Where in the documentation does this issue occur? (e.g., file path, URL, section)
+      placeholder: e.g., https://docs.example.com/getting-started or docs/api.md
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: Current Content
+      description: What does the current documentation say?
+      placeholder: Paste the current text/content
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Content
+      description: What should the documentation say instead?
+      placeholder: Describe what the documentation should say
+    validations:
+      required: true
+  - type: textarea
+    id: suggested
+    attributes:
+      label: Suggested Improvement
+      description: Any additional suggestions to improve the documentation
+      placeholder: How could we improve the clarity, formatting, or content?
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the documentation issue here
+      placeholder: Any additional context...
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: The documentation is hosted in a public repository
+          required: true

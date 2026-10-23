@@ -375,8 +375,8 @@ def create_put_headers(
 
 
 def ensure_token(token: str | None) -> str:
-    token = token or os.getenv("BLOB_READ_WRITE_TOKEN") or os.getenv(
-        "KHULNASOFT_BLOB_READ_WRITE_TOKEN"
+    token = (
+        token or os.getenv("BLOB_READ_WRITE_TOKEN") or os.getenv("KHULNASOFT_BLOB_READ_WRITE_TOKEN")
     )
     if not token:
         raise BlobNoTokenProvidedError()

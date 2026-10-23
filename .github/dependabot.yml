@@ -1,0 +1,47 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 10
+    groups:
+      dev-dependencies:
+        patterns:
+          - "ruff"
+          - "pytest*"
+          - "mypy"
+          - "build"
+          - "twine"
+          - "coverage"
+          - "pytest-cov"
+      lint-format:
+        patterns:
+          - "ruff"
+      test:
+        patterns:
+          - "pytest*"
+          - "coverage"
+          - "pytest-cov"
+      typecheck:
+        patterns:
+          - "mypy"
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    labels:
+      - "dependencies"
+      - "python"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"

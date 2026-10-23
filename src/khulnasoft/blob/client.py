@@ -42,8 +42,10 @@ from .utils import Access, UploadProgressEvent
 
 class BlobClient:
     def __init__(self, token: str | None = None):
-        self.token = token or os.getenv("BLOB_READ_WRITE_TOKEN") or os.getenv(
-            "KHULNASOFT_BLOB_READ_WRITE_TOKEN"
+        self.token = (
+            token
+            or os.getenv("BLOB_READ_WRITE_TOKEN")
+            or os.getenv("KHULNASOFT_BLOB_READ_WRITE_TOKEN")
         )
         if not self.token:
             raise BlobNoTokenProvidedError()
@@ -223,8 +225,10 @@ class BlobClient:
 
 class AsyncBlobClient:
     def __init__(self, token: str | None = None):
-        self.token = token or os.getenv("BLOB_READ_WRITE_TOKEN") or os.getenv(
-            "KHULNASOFT_BLOB_READ_WRITE_TOKEN"
+        self.token = (
+            token
+            or os.getenv("BLOB_READ_WRITE_TOKEN")
+            or os.getenv("KHULNASOFT_BLOB_READ_WRITE_TOKEN")
         )
         if not self.token:
             raise BlobNoTokenProvidedError()

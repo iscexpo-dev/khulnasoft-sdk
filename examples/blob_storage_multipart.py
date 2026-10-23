@@ -65,7 +65,6 @@ def sync_example():
     print("\nUpload completed!")
     print(f"  URL: {result.url}")
     print(f"  Pathname: {result.pathname}")
-    print(f"  Size: {getattr(result, 'size', 'N/A')} bytes")
 
 
 async def async_example():
@@ -105,7 +104,6 @@ async def async_example():
     print("\nUpload completed!")
     print(f"  URL: {result.url}")
     print(f"  Pathname: {result.pathname}")
-    print(f"  Size: {getattr(result, 'size', 'N/A')} bytes")
 
 
 async def async_with_file_example():
@@ -152,7 +150,6 @@ async def async_with_file_example():
     print("\nFile upload completed!")
     print(f"  URL: {result.url}")
     print(f"  Pathname: {result.pathname}")
-    print(f"  Size: {getattr(result, 'size', 'N/A')} bytes")
 
     # Clean up test file
     os.remove(test_file_path)
