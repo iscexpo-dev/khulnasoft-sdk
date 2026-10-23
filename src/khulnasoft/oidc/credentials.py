@@ -1,17 +1,9 @@
 from __future__ import annotations
 
-import contextlib
 import os
-from dataclasses import dataclass
 
 from .token import decode_oidc_payload
-
-
-@dataclass
-class Credentials:
-    token: str
-    project_id: str
-    team_id: str
+from .types import Credentials
 
 
 def get_credentials(
@@ -28,14 +20,17 @@ def get_credentials(
         project = os.getenv("KHULNASOFT_PROJECT_ID")
         team = os.getenv("KHULNASOFT_TEAM_ID")
         if not (project and team):
-            with contextlib.suppress(ValueError, KeyError, TypeError, UnicodeDecodeError):
+            try:
                 payload = decode_oidc_payload(oidc)
                 project = payload.get("project_id")
                 team = payload.get("owner_id")
+            except Exception:
+                pass
         if project and team:
             return Credentials(token=oidc, project_id=project, team_id=team)
         raise RuntimeError(
-            "KHULNASOFT_OIDC_TOKEN present but could not determine KHULNASOFT_PROJECT_ID and KHULNASOFT_TEAM_ID"
+            "KHULNASOFT_OIDC_TOKEN present but could not determine "
+            "KHULNASOFT_PROJECT_ID and KHULNASOFT_TEAM_ID"
         )
 
     token = token or os.getenv("KHULNASOFT_TOKEN")
@@ -46,5 +41,6 @@ def get_credentials(
         return Credentials(token=token, project_id=project_id, team_id=team_id)
 
     raise RuntimeError(
-        "Missing credentials. Provide KHULNASOFT_OIDC_TOKEN with KHULNASOFT_PROJECT_ID and KHULNASOFT_TEAM_ID, or KHULNASOFT_TOKEN, KHULNASOFT_PROJECT_ID, KHULNASOFT_TEAM_ID."
+        "Missing credentials. Provide KHULNASOFT_OIDC_TOKEN with KHULNASOFT_PROJECT_ID "
+        "and KHULNASOFT_TEAM_ID, or KHULNASOFT_TOKEN, KHULNASOFT_PROJECT_ID, KHULNASOFT_TEAM_ID."
     )

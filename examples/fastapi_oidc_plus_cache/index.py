@@ -1,33 +1,43 @@
 from __future__ import annotations
 
-from typing import Callable
+import logging
+import traceback
+from collections.abc import Callable
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 
-from khulnasoft.functions import get_cache, set_headers
-from khulnasoft.oidc import decode_oidc_payload, get_khulnasoft_oidc_token
+from khulnasoft.cache import AsyncRuntimeCache
+from khulnasoft.headers import geolocation, ip_address, set_headers
+from khulnasoft.oidc import decode_oidc_payload
+from khulnasoft.oidc.aio import get_khulnasoft_oidc_token
 
+logger = logging.getLogger(__name__)
 app = FastAPI()
+
+
+cache = AsyncRuntimeCache()
 
 
 @app.middleware("http")
 async def khulnasoft_context_middleware(request: Request, call_next: Callable):
-    headers = {k.lower(): v for k, v in request.headers.items()}
-    set_headers(headers)
-    response = await call_next(request)
-    return response
+    set_headers(request.headers)
+    return await call_next(request)
 
 
 @app.get("/api/oidc")
 async def oidc_info():
-    token = await get_khulnasoft_oidc_token()
-    payload = decode_oidc_payload(token)
-    return {"sub": payload.get("sub"), "exp": payload.get("exp")}
+    try:
+        token = await get_khulnasoft_oidc_token()
+        payload = decode_oidc_payload(token)
+        return {"sub": payload.get("sub"), "exp": payload.get("exp")}
+    except Exception as e:
+        logger.error(f"Error getting OIDC info: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Error getting OIDC info") from None
 
 
 @app.get("/api/cache")
 async def cache_demo():
-    cache = get_cache(namespace="fastapi-e2e")
     key = "hit"
     val = await cache.get(key)
     if val is None:
@@ -50,7 +60,6 @@ async def test():
     oidc_exp = payload.get("exp")
 
     # Test cache logic
-    cache = get_cache(namespace="fastapi-e2e")
     key = "test:logic"
     await cache.delete(key)
     val = await cache.get(key)
@@ -63,6 +72,20 @@ async def test():
         "oidc": {"sub": oidc_sub, "exp": oidc_exp},
         "cache": cache_result,
     }
+
+
+@app.get("/api/geo")
+async def geo_info(request: Request):
+    """Return geolocation info inferred from request headers."""
+    info = geolocation(request)
+    return info
+
+
+@app.get("/api/ip")
+async def ip_info(request: Request):
+    """Return client IP inferred from request headers."""
+    ip = ip_address(request.headers)
+    return {"ip": ip}
 
 
 if __name__ == "__main__":
