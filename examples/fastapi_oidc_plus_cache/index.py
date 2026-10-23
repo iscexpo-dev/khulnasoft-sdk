@@ -2,24 +2,26 @@ from __future__ import annotations
 
 import logging
 import traceback
-from typing import Callable
+from collections.abc import Callable
 
 from fastapi import FastAPI, HTTPException, Request
 
-from khulnasoft.cache import get_cache
+from khulnasoft.cache import AsyncRuntimeCache
 from khulnasoft.headers import geolocation, ip_address, set_headers
-from khulnasoft.oidc import decode_oidc_payload, get_khulnasoft_oidc_token
+from khulnasoft.oidc import decode_oidc_payload
+from khulnasoft.oidc.aio import get_khulnasoft_oidc_token
 
 logger = logging.getLogger(__name__)
 app = FastAPI()
 
 
+cache = AsyncRuntimeCache()
+
+
 @app.middleware("http")
 async def khulnasoft_context_middleware(request: Request, call_next: Callable):
-    headers = {k.lower(): v for k, v in request.headers.items()}
-    set_headers(headers)
-    response = await call_next(request)
-    return response
+    set_headers(request.headers)
+    return await call_next(request)
 
 
 @app.get("/api/oidc")
@@ -31,12 +33,11 @@ async def oidc_info():
     except Exception as e:
         logger.error(f"Error getting OIDC info: {e}")
         logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail="Error getting OIDC info")
+        raise HTTPException(status_code=500, detail="Error getting OIDC info") from None
 
 
 @app.get("/api/cache")
 async def cache_demo():
-    cache = get_cache(namespace="fastapi-e2e")
     key = "hit"
     val = await cache.get(key)
     if val is None:
@@ -59,7 +60,6 @@ async def test():
     oidc_exp = payload.get("exp")
 
     # Test cache logic
-    cache = get_cache(namespace="fastapi-e2e")
     key = "test:logic"
     await cache.delete(key)
     val = await cache.get(key)
