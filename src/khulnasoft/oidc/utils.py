@@ -1,30 +1,25 @@
 from __future__ import annotations
 
 import base64
-import contextlib
 import json
 import os
 import sys
-from dataclasses import dataclass
 from typing import Any
 
-import httpx
-
-
-@dataclass
-class KhulnasoftTokenResponse:
-    token: str
+from .types import KhulnasoftTokenResponse, ProjectInfo
 
 
 def _user_data_dir() -> str | None:
     try:
         home = os.path.expanduser("~")
         if sys.platform.startswith("win"):
-            return os.environ.get("APPDATA") or os.path.join(home, "AppData", "Roaming")
+            # Prefer LOCALAPPDATA for application data storage on Windows
+            return os.environ.get("LOCALAPPDATA")
         if sys.platform == "darwin":
             return os.path.join(home, "Library", "Application Support")
         # linux and others
-        return os.environ.get("XDG_CONFIG_HOME") or os.path.join(home, ".config")
+        xdg_data_home = os.environ.get("XDG_DATA_HOME")
+        return xdg_data_home or os.path.join(home, ".local", "share")
     except Exception:
         return None
 
@@ -44,7 +39,7 @@ def get_khulnasoft_cli_token() -> str | None:
     if not os.path.exists(token_path):
         return None
     try:
-        with open(token_path, "r", encoding="utf-8") as f:
+        with open(token_path, encoding="utf-8") as f:
             data = json.load(f)
         token = data.get("token")
         if isinstance(token, str) and token:
@@ -55,11 +50,11 @@ def get_khulnasoft_cli_token() -> str | None:
 
 
 def _find_root_dir(start: str | None = None) -> str | None:
-    # Walk up from start (or cwd) looking for .khulnasoft/project.json
+    # Walk up from start (or cwd) looking for a .khulnasoft folder (align with TS SDK)
     current = os.path.abspath(start or os.getcwd())
     while True:
-        prj_json = os.path.join(current, ".khulnasoft", "project.json")
-        if os.path.exists(prj_json):
+        khulnasoft_dir = os.path.join(current, ".khulnasoft")
+        if os.path.isdir(khulnasoft_dir):
             return current
         parent = os.path.dirname(current)
         if parent == current:
@@ -67,7 +62,7 @@ def _find_root_dir(start: str | None = None) -> str | None:
         current = parent
 
 
-def find_project_info() -> dict[str, str]:
+def find_project_info() -> ProjectInfo:
     root = _find_root_dir()
     if not root:
         raise RuntimeError("Unable to find root directory")
@@ -75,10 +70,10 @@ def find_project_info() -> dict[str, str]:
     if not os.path.exists(prj_path):
         raise RuntimeError("project.json not found")
     try:
-        with open(prj_path, "r", encoding="utf-8") as f:
+        with open(prj_path, encoding="utf-8") as f:
             prj = json.load(f)
-        project_id = prj.get("projectId") or prj.get("orgId")
-        team_id = prj.get("orgId")
+        project_id = prj.get("projectId")
+        team_id = prj.get("orgId") if isinstance(prj.get("orgId"), str) else None
         if not isinstance(project_id, str):
             raise TypeError("Expected a string-valued projectId property")
         return {"projectId": project_id, "teamId": team_id}
@@ -102,8 +97,10 @@ def save_token(token: KhulnasoftTokenResponse, project_id: str) -> None:
         token_path = os.path.join(directory, f"{project_id}.json")
         with open(token_path, "w", encoding="utf-8") as f:
             json.dump({"token": token.token}, f)
-        with contextlib.suppress(OSError):
+        try:
             os.chmod(token_path, 0o600)
+        except Exception:
+            pass
     except Exception as e:
         raise RuntimeError("Failed to save token") from e
 
@@ -116,7 +113,7 @@ def load_token(project_id: str) -> KhulnasoftTokenResponse | None:
     if not os.path.exists(token_path):
         return None
     try:
-        with open(token_path, "r", encoding="utf-8") as f:
+        with open(token_path, encoding="utf-8") as f:
             data = json.load(f)
         token = data.get("token")
         if isinstance(token, str):
@@ -146,21 +143,3 @@ def is_expired(payload: dict[str, Any]) -> bool:
     fifteen_minutes_ms = 15 * 60 * 1000
     now_ms = int(time.time() * 1000)
     return int(exp * 1000) < now_ms + fifteen_minutes_ms
-
-
-async def fetch_khulnasoft_oidc_token(
-    auth_token: str, project_id: str, team_id: str | None
-) -> KhulnasoftTokenResponse | None:
-    url = (
-        f"https://api.khulnasoft.com/v1/projects/{project_id}/token?source=khulnasoft-oidc-refresh"
-    )
-    if team_id:
-        url += f"&teamId={team_id}"
-    async with httpx.AsyncClient(timeout=httpx.Timeout(30.0)) as client:
-        r = await client.post(url, headers={"authorization": f"Bearer {auth_token}"})
-        if not (200 <= r.status_code < 300):
-            raise RuntimeError(f"Failed to refresh OIDC token: {r.status_code} {r.reason_phrase}")
-        data = r.json()
-        if not isinstance(data, dict) or not isinstance(data.get("token"), str):
-            raise TypeError("Expected a string-valued token property")
-        return KhulnasoftTokenResponse(token=data["token"])

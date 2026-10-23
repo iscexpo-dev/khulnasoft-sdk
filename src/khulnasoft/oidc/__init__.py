@@ -1,16 +1,18 @@
 from .credentials import Credentials, get_credentials
 from .token import (
     KhulnasoftOidcTokenError,
+    decode_oidc_payload,
     get_khulnasoft_oidc_token,
     get_khulnasoft_oidc_token_sync,
+    get_token_payload,
 )
-from .token_util import get_token_payload
 
 __all__ = [
-    "Credentials",
     "KhulnasoftOidcTokenError",
-    "get_credentials",
     "get_khulnasoft_oidc_token",
     "get_khulnasoft_oidc_token_sync",
     "get_token_payload",
+    "Credentials",
+    "get_credentials",
+    "decode_oidc_payload",
 ]
