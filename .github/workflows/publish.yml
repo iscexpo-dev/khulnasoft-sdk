@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   check-version:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     outputs:
       should-publish: ${{ steps.version-check.outputs.should-publish }}
     steps:
