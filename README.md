@@ -1,5 +1,32 @@
 # KhulnaSoft Python SDK
 
+Python clients for KhulnaSoft services, with synchronous and asynchronous APIs.
+
+```mermaid
+flowchart LR
+    APP["Python application"] --> SDK["KhulnaSoft SDK"]
+    SDK --> CONTEXT["Request context<br/>IP and geolocation"]
+    SDK --> CACHE["Runtime cache<br/>sync and async"]
+    SDK --> OIDC["OIDC tokens"]
+    SDK --> BLOB["Blob storage<br/>objects and multipart"]
+```
+
+| Capability | Package | Typical use |
+| --- | --- | --- |
+| Request context | `khulnasoft.headers` | Read IP and geolocation headers |
+| Runtime cache | `khulnasoft.cache` | Cache values with TTLs and tag invalidation |
+| OIDC tokens | `khulnasoft.oidc` | Read identity and project claims |
+| Blob storage | `khulnasoft.blob` | Upload, list, download, and manage objects |
+
+## Contents
+
+- [Installation](#installation)
+- [Requirements](#requirements)
+- [Request context](#request-context)
+- [Runtime cache](#runtime-cache)
+- [OIDC tokens](#oidc-tokens)
+- [Blob storage](#blob-storage)
+- [Development](#development)
 
 ## Installation
 
@@ -9,19 +36,9 @@ pip install khulnasoft
 
 ## Requirements
 
-- Python 3.10+
+- Python 3.10 or later
 
-## Usage
-
-This package provides both synchronous and asynchronous clients to interact with the KhulnaSoft API.
-
-<br/>
-
----
-
-
-
-### Headers and request context
+## Request context
 
 ```python
 from typing import Callable
@@ -45,13 +62,9 @@ async def headers_info(request: Request):
     return {"ip": ip, "geo": geo}
 ```
 
-<br/>
+## Runtime cache
 
----
-
-### Runtime Cache
-
-#### Sync
+### Synchronous helper
 ```python
 from khulnasoft.cache import get_cache
 
@@ -65,7 +78,7 @@ def main():
     cache.expire_tag("demo")  # invalidate by tag
 ```
 
-#### Sync Client
+### Synchronous client
 ```python
 from khulnasoft.cache import RuntimeCache
 
@@ -79,7 +92,7 @@ def main():
     cache.expire_tag("demo")  # invalidate by tag
 ```
 
-#### Async
+### Asynchronous helper
 ```python
 from khulnasoft.cache.aio import get_cache
 
@@ -93,17 +106,17 @@ async def main():
     await cache.expire_tag("demo")  # invalidate by tag
 ```
 
-#### Async Client
+### Asynchronous client
 ```python
 from khulnasoft.cache import AsyncRuntimeCache
 
 cache = AsyncRuntimeCache(namespace="demo")
 
 async def main():
-    await await cache.delete("greeting")
-    await await cache.set("greeting", {"hello": "world"}, {"ttl": 60, "tags": ["demo"]})
+    await cache.delete("greeting")
+    await cache.set("greeting", {"hello": "world"}, {"ttl": 60, "tags": ["demo"]})
     value = await cache.get("greeting")  # dict or None
-    await cache.expire_tag("demo")        # invalidate by tag
+    await cache.expire_tag("demo")  # invalidate by tag
 ```
 
 <br/>
@@ -112,15 +125,14 @@ async def main():
 
 <br/>
 
-### KhulnaSoft OIDC Tokens
+## OIDC tokens
 
 ```python
 from typing import Callable
 
 from fastapi import FastAPI, Request
+from khulnasoft.headers import set_headers
 from khulnasoft.oidc import decode_oidc_payload, get_khulnasoft_oidc_token
-# async
-# from khulnasoft.oidc.aio import get_khulnasoft_oidc_token
 
 app = FastAPI()
 
@@ -138,7 +150,7 @@ def oidc():
 
     return {
         "user_id": user_id,
-        "project_id" project_id,
+        "project_id": project_id,
     }
 ```
 
@@ -153,13 +165,11 @@ Notes:
 <br/>
 
 
-### Blob Storage
+## Blob storage
 
+Set `BLOB_READ_WRITE_TOKEN` in the environment or pass `token` when constructing a client.
 
-Requires `BLOB_READ_WRITE_TOKEN` to be set as an env var or `token` to be set when constructing a client
-
-
-#### Sync
+### Synchronous usage
 
 
 ```python
@@ -180,7 +190,7 @@ listing = client.list_objects(prefix="examples/assets/")
 client.download_file(uploaded.url, "/tmp/readme-copy.txt", overwrite=True)
 ```
 
-Async usage:
+### Asynchronous usage
 
 ```python
 import asyncio
@@ -208,51 +218,35 @@ async def main():
 asyncio.run(main())
 ```
 
-Synchronous usage:
-
-```python
-from khulnasoft.blob import BlobClient
-
-client = BlobClient()  # or BlobClient(token="...")
-
-# Create a folder entry, upload a local file, list, then download
-client.create_folder("examples/assets", overwrite=True)
-uploaded = client.upload_file(
-    "./README.md",
-    "examples/assets/readme-copy.txt",
-    access="public",
-    content_type="text/plain",
-)
-listing = client.list_objects(prefix="examples/assets/")
-client.download_file(uploaded.url, "/tmp/readme-copy.txt", overwrite=True)
-```
-
-#### Multipart Uploads
+### Multipart uploads
 
 For large files, the SDK provides three approaches with different trade-offs:
 
-##### 1. Automatic (Simplest)
+#### Automatic
 
 The SDK handles everything automatically:
 
 ```python
 from khulnasoft.blob import auto_multipart_upload
 
-# Synchronous
 result = auto_multipart_upload(
     "large-file.bin",
     large_data,  # bytes, file object, or iterator
     part_size=8 * 1024 * 1024,  # 8MB parts (default)
 )
 
-# Asynchronous
-result = await auto_multipart_upload_async(
-    "large-file.bin",
-    large_data,
-)
 ```
 
-##### 2. Uploader Pattern (Recommended)
+Asynchronous:
+
+```python
+from khulnasoft.blob import auto_multipart_upload_async
+
+async def main():
+    result = await auto_multipart_upload_async("large-file.bin", large_data)
+```
+
+#### Uploader pattern
 
 A middle-ground that provides a clean API while giving you control over parts and concurrency:
 
@@ -301,7 +295,7 @@ Notes:
 - `add_random_suffix` defaults to True for the uploader (matches TS SDK); manual create defaults to False.
 - Abort/cancel: an abortable uploader API is not yet exposed (future enhancement).
 
-##### 3. Manual (Most Control)
+#### Manual
 
 Full control over each step, but more verbose:
 
@@ -342,13 +336,13 @@ result = complete_multipart_upload(
 )
 ```
 
-See `examples/multipart_uploader.py` for complete working examples.
+See [`examples/blob_storage_multipart.py`](examples/blob_storage_multipart.py) for complete working examples.
 
 ## Development
 
 - Lint/typecheck/tests:
 ```bash
-uv pip install -e .[dev]
+uv sync --group dev
 uv run ruff format --check && uv run ruff check . && uv run mypy src && uv run pytest -v
 ```
 - CI runs lint, typecheck, examples as smoke tests, and builds wheels.
