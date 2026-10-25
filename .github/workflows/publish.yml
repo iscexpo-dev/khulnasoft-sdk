@@ -4,18 +4,20 @@ on:
     branches:
       - main   # publish on push to main
 
-permissions:
-  contents: write  # required for creating tags
-  id-token: write  # required for Trusted Publishing (OIDC)
+permissions: {}
 
 jobs:
   check-version:
     runs-on: [self-hosted, Linux, X64]
+    permissions:
+      contents: read
     outputs:
       should-publish: ${{ steps.version-check.outputs.should-publish }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.14"
       - name: Check if version already published
@@ -35,15 +37,22 @@ jobs:
     needs: check-version
     if: needs.check-version.outputs.should-publish == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # required for creating tags
+      id-token: write  # required for Trusted Publishing (OIDC)
     environment:
       name: pypi
       url: https://pypi.org/p/khulnasoft
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 # zizmor: ignore[artipacked]
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.14"
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: false
       - run: uv venv --python 3.14
       - run: uv pip install build
       - name: Create tag from version
@@ -68,4 +77,4 @@ jobs:
       - name: Build
         run: uv run python -m build
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
