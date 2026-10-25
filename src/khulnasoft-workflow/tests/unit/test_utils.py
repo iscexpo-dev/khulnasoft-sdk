@@ -6,6 +6,11 @@ import pytest
 from khulnasoft.workflow._internal.utils import Utf16MaxLength, utf16_code_unit_length
 
 
+def _utf16_adapter(code_units: int) -> pydantic.TypeAdapter[str]:
+    annotation = Annotated[str, Utf16MaxLength(code_units)]
+    return pydantic.TypeAdapter[str](annotation)  # type: ignore[arg-type]
+
+
 @pytest.mark.parametrize(
     "value,expected",
     [
@@ -30,13 +35,13 @@ def test_utf16_code_unit_length(value: str, expected: int) -> None:
     ["", "ab", "中文", "😀", "\ud800", "\udc00", "\ud83d\ude00"],
 )
 def test_utf16_max_length_accepts_within_limit(value: str) -> None:
-    adapter = pydantic.TypeAdapter[str](Annotated[str, Utf16MaxLength(code_units=2)])
+    adapter = _utf16_adapter(2)
     assert adapter.validate_python(value) == value
 
 
 @pytest.mark.parametrize("value", ["abc", "中文名", "😀x", "😀😀", "\ud83d\ude00x"])
 def test_utf16_max_length_rejects_over_limit(value: str) -> None:
-    adapter = pydantic.TypeAdapter[str](Annotated[str, Utf16MaxLength(2)])
+    adapter = _utf16_adapter(2)
     with pytest.raises(pydantic.ValidationError, match="at most 2 UTF-16 code units"):
         adapter.validate_python(value)
 
@@ -55,7 +60,7 @@ def test_utf16_max_length_optional_field() -> None:
 
 
 def test_utf16_max_length_zero() -> None:
-    adapter = pydantic.TypeAdapter[str](Annotated[str, Utf16MaxLength(0)])
+    adapter = _utf16_adapter(0)
     assert adapter.validate_python("") == ""
     with pytest.raises(pydantic.ValidationError, match="at most 0 UTF-16 code units"):
         adapter.validate_python("x")
@@ -67,6 +72,6 @@ def test_utf16_max_length_negative_limit() -> None:
 
 
 def test_utf16_max_length_json_schema() -> None:
-    adapter = pydantic.TypeAdapter[str](Annotated[str, Utf16MaxLength(2)])
+    adapter = _utf16_adapter(2)
     # JSON Schema's maxLength counts code points, not UTF-16 code units.
     assert adapter.json_schema() == {"type": "string"}
