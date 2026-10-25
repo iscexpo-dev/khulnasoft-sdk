@@ -8,7 +8,9 @@ dev = [
     "ruff==0.15.20",
     "pytest>=7.0.0,<10",
     "pytest-asyncio<2",
+    "pytest-cov>=6,<8",
     "pytest-xdist<4",
+    "coverage>=7,<8",
     # Runtime-only migration compatibility; never included in release metadata.
     "httpx==0.28.1",
     "fastapi>=0.115.0,<1",
@@ -27,6 +29,7 @@ dev = [
     "textual>=8.0.0,<9",
     "trio>=0.33.0,<1",
     "poethepoet>=0.48.0",
+    "pip-audit>=2.7,<3",
     "pre-commit>=4.0.0,<5",
     "tox>=4",
     "tox-uv-bare",
@@ -126,6 +129,7 @@ select = [
     "B",  # flake8-bugbear
     "C4", # flake8-comprehensions
     "UP", # pyupgrade
+    "BLE001", # blanket except
 ]
 isort = { combine-as-imports = true, known-first-party = ["khulnasoft"] }
 
@@ -133,11 +137,48 @@ isort = { combine-as-imports = true, known-first-party = ["khulnasoft"] }
 keep-runtime-typing = false
 
 [tool.ruff.lint.per-file-ignores]
-"examples/**/*.py" = ["E501"]
+"examples/**/*.py" = ["E501", "BLE001"]
+"**/tests/**/*.py" = ["BLE001"]
+"src/khulnasoft-internal-core/khulnasoft/_internal/core/http/transport.py" = ["BLE001"]
+"src/khulnasoft-internal-core/khulnasoft/_internal/core/session.py" = ["BLE001"]
+"src/khulnasoft-internal-telemetry/khulnasoft/internal/telemetry/tracker.py" = ["BLE001"]
+"src/khulnasoft-internal-telemetry/khulnasoft/internal/telemetry/credentials.py" = ["BLE001"]
+"src/khulnasoft-internal-telemetry/khulnasoft/internal/telemetry/client.py" = ["BLE001"]
+"src/khulnasoft-workflow/khulnasoft/workflow/_internal/runtime.py" = ["BLE001"]
+"src/khulnasoft-workflow/khulnasoft/workflow/_internal/signature_codec.py" = ["BLE001"]
+"src/khulnasoft-workflow/khulnasoft/workflow/_internal/worlds/khulnasoft.py" = ["BLE001"]
+"src/khulnasoft-workflow/khulnasoft/workflow/_internal/worlds/local.py" = ["BLE001"]
+"src/khulnasoft-workflow/khulnasoft/workflow/_internal/serialization.py" = ["BLE001"]
+"src/khulnasoft-workflow/khulnasoft/workflow/_internal/run.py" = ["BLE001"]
+"src/khulnasoft-workflow/khulnasoft/workflow/_internal/errors.py" = ["BLE001"]
+"src/khulnasoft-workflow/khulnasoft/workflow/_internal/error_serde.py" = ["BLE001"]
+"src/khulnasoft-workflow/khulnasoft/workflow/_internal/cli.py" = ["BLE001"]
+"src/khulnasoft-cache/khulnasoft/cache/cache_build.py" = ["BLE001"]
+"src/khulnasoft/projects/projects.py" = ["BLE001"]
+"src/khulnasoft/deployments/deployments.py" = ["BLE001"]
+"src/khulnasoft/_internal/blob/__init__.py" = ["BLE001"]
+"src/khulnasoft/_internal/blob/core.py" = ["BLE001"]
+"src/khulnasoft-sandbox/khulnasoft/sandbox/_internal/filesystem_handle_core.py" = ["BLE001"]
+"src/khulnasoft-sandbox/khulnasoft/sandbox/_internal/sync_runtime.py" = ["BLE001"]
+"src/khulnasoft-sandbox/khulnasoft/sandbox/_internal/sync_filesystem_handle.py" = ["BLE001"]
+"src/khulnasoft-sandbox/khulnasoft/sandbox/_internal/async_runtime.py" = ["BLE001"]
+"src/khulnasoft-sandbox/khulnasoft/sandbox/_internal/async_filesystem_handle.py" = ["BLE001"]
+"src/khulnasoft-oidc/khulnasoft/oidc/utils.py" = ["BLE001"]
+"src/khulnasoft-oidc/khulnasoft/oidc/token.py" = ["BLE001"]
+"src/khulnasoft-oidc/khulnasoft/oidc/credentials.py" = ["BLE001"]
+"src/khulnasoft-connect/khulnasoft/connect/_internal/identity.py" = ["BLE001"]
 
 [tool.poe]
 include = "scripts/poe/poe.toml"
 verbosity = -1
+
+[tool.coverage.run]
+branch = true
+parallel = true
+
+[tool.coverage.report]
+skip_empty = true
+include = ["*/khulnasoft/*"]
 
 [tool.poe.tasks.setup]
 sequence = ["sync-githooks"]
@@ -238,6 +279,12 @@ args = [
 
 [tool.poe.tasks.test-root]
 cmd = "scripts/poe/workspace_poe.py root-task test-root"
+
+[tool.poe.tasks.coverage]
+cmd = "python scripts/coverage.py"
+
+[tool.poe.tasks.type-ignores]
+cmd = "python scripts/check_type_ignores.py"
 
 [tool.poe.tasks.test-examples]
 cmd = "scripts/poe/workspace_poe.py workspace test-examples --poe-verbose ${verbose:-false} ${scopes}"

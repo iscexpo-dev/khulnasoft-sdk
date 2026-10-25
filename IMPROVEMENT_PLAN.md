@@ -213,6 +213,9 @@ Severity: P0 blocks reliable delivery; P1 causes drift or rework; P2 is polish.
 - Acceptance: every declared version runs at least the unit suites.
 
 ### Phase 2 — Structure cleanup and consistency (P1)
+S5/S6, S10, S11, S12, S13 complete: publishing/redistribute rewritten, namespace
+wheel-include guard added, live-test default exclusion added and enforced, examples
+README added, placeholder `internal/` deleted, and `poe test-examples` runs post-merge.
 
 **S5/S6 — Redesign publishing for a monorepo.**
 - Decide the release model before coding:
@@ -250,13 +253,16 @@ Severity: P0 blocks reliable delivery; P1 causes drift or rework; P2 is polish.
   include list) or move the note into package docs and delete the directory.
 - Acceptance: no directory exists only as a comment.
 
-**S18/S19/S20 — Quality gates.**
-- Add `pytest-cov` and publish coverage; start from a ratchet floor, then raise it.
-- Enable `BLE001` with per-file ignores for current hot spots and prevent new
-  dedents; track `type: ignore` counts per changed file.
-- Add a scheduled `pip-audit`/`uv` audit and consider build provenance.
-- Acceptance: coverage is visible in CI, broad-except and ignore counts do not
-  increase in changed files, and audits run on a schedule.
+**S18/S19/S20 — Quality gates** — complete.
+- `scripts/coverage.py` runs the workspace tests with xdist workers, enforces an
+  86% baseline floor via `poe coverage`, and writes `coverage.xml`; CI uploads it as
+  an artifact and runs it on PRs.
+- `scripts/check_type_ignores.py` ratchets `# type: ignore` counts against
+  `scripts/type-ignore-baseline.json` (210 initial) via `poe type-ignores`.
+- `BLE001` is enabled with per-file ignores for current hot spots; new source files
+  cannot add broad `except`.
+- `.github/workflows/ci.yml` has a scheduled/workflow_dispatch `audit` job running
+  `pip-audit` and uploading a CycloneDX SBOM from `uv export`.
 
 ### Phase 3 — Governance and polish (P2)
 

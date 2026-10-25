@@ -35,6 +35,14 @@ Run the standard checks before opening a PR:
 uv run poe qa
 ```
 
+Measure coverage with `uv run poe coverage`. It runs the workspace tests with
+xdist workers, enforces the floor in `scripts/coverage.py`, and writes
+`coverage.xml` for the CI artifact.
+
+`uv run poe type-ignores` ratchets `# type: ignore` comments against
+`scripts/type-ignore-baseline.json`; run `python scripts/check_type_ignores.py
+--update` when you remove an ignore.
+
 `qa` runs lint, typecheck, and tests. It accepts package and file scopes, plus
 `-q`/`--quiet` and `-v`/`--verbose`; because it is an aggregate task, it does
 not accept tool-specific arguments after `--`. It is fail-fast, so later checks
@@ -101,10 +109,13 @@ CI supplies `BLOB_READ_WRITE_TOKEN`, `KHULNASOFT_TOKEN`, `KHULNASOFT_PROJECT_ID`
 `KHULNASOFT_TEAM_ID`; package-owned checks skip live examples safely when those
 secrets are unavailable.
 
-Pull requests run the Python 3.12 gate (`poe qa`, the news-fragment check, and
-`uv build --all-packages --no-sources`) plus the pre-commit workflow. Pushes to
+Pull requests run the Python 3.12 gate (`poe qa`, the news-fragment check,
+`poe coverage`, and `uv build --all-packages --no-sources`) plus the pre-commit
+workflow. Pushes to
 `main` and the nightly schedule also run the test suite on Python 3.10 through
-3.14, and run `poe test-examples` as a post-merge signal.
+3.14, and run `poe test-examples` as a post-merge signal. The nightly schedule
+also audits the locked environment with `pip-audit` and uploads a CycloneDX
+SBOM.
 
 Auto-fix formatting and simple lint issues with:
 

@@ -144,7 +144,9 @@ def build_command(task_name: str, argv: Sequence[str]) -> list[str]:
             flags={"-q", "--quiet", "-v", "--verbose"},
             prefixes=("-q", "-v"),
         )
-        parallel = enabled("WORKSPACE_POE_PARALLEL", default=True)
+        parallel = enabled("WORKSPACE_POE_PARALLEL", default=True) or enabled(
+            "WORKSPACE_POE_PYTEST_XDIST", default=False
+        )
         if (
             not has_verbosity
             and os.environ.get("WORKSPACE_POE_LOGRAIL_PROGRESS") == "1"

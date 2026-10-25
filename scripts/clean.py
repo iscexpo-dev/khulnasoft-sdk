@@ -20,6 +20,7 @@ REMOVED_DIRS = {
 }
 REMOVED_SUFFIXES = {".egg-info", ".pyc", ".pyo"}
 COVERAGE_FILE = ".coverage"
+COVERAGE_XML = "coverage.xml"
 
 
 def parse_args() -> argparse.Namespace:
@@ -52,7 +53,7 @@ def collect_targets(*, include_venv: bool) -> list[Path]:
             candidate = current / name
             if (
                 candidate.suffix in REMOVED_SUFFIXES
-                or name == COVERAGE_FILE
+                or name in {COVERAGE_FILE, COVERAGE_XML}
                 or name.startswith(f"{COVERAGE_FILE}.")
             ):
                 targets.append(candidate)
