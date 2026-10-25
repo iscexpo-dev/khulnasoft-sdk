@@ -26,3 +26,8 @@ helpers.
 `khulnasoft._internal` contains implementation details shared by the public modules.
 Do not import from it in application code or generated examples; it may change
 without public API guarantees.
+
+`khulnasoft.internal` is reserved for separately distributed internal packages
+such as `khulnasoft-internal-telemetry`. It is also not public API. Feature
+packages own one `khulnasoft/<feature>` path, and integrations own
+`khulnasoft/integrations/<name>`; no two packages may claim the same path.
