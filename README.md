@@ -340,13 +340,17 @@ See [`examples/blob_storage_multipart.py`](examples/blob_storage_multipart.py) f
 
 ## Development
 
-- Lint/typecheck/tests:
+- Install dependencies and run the canonical checks:
 ```bash
-uv sync --group dev
-uv run ruff format --check && uv run ruff check . && uv run mypy src && uv run pytest -v
+uv sync --all-packages
+uv run poe qa
 ```
-- CI runs lint, typecheck, examples as smoke tests, and builds wheels.
-- Publishing: push a tag (`vX.Y.Z`) that matches `project.version` to publish via PyPI Trusted Publishing.
+- Build every workspace package:
+```bash
+uv build --all-packages --no-sources
+```
+- CI runs lint, typecheck, and tests, then builds every package.
+- Release and publishing steps are documented in [`RELEASING.md`](RELEASING.md).
 
 ## License
 
