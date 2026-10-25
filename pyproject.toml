@@ -27,6 +27,7 @@ dev = [
     "textual>=8.0.0,<9",
     "trio>=0.33.0,<1",
     "poethepoet>=0.48.0",
+    "pre-commit>=4.0.0,<5",
     "tox>=4",
     "tox-uv-bare",
     "tomli>=2.0.0,<3; python_version < '3.11'",
