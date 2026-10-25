@@ -5,7 +5,7 @@
 Install dependencies and local Git hooks:
 
 ```sh
-uv sync
+uv sync --all-packages
 uv run poe setup
 ```
 
@@ -83,6 +83,11 @@ KHULNASOFT_OIDC_TOKEN="$(vc project token)" uv run poe test-examples khulnasoft-
 CI supplies `BLOB_READ_WRITE_TOKEN`, `KHULNASOFT_TOKEN`, `KHULNASOFT_PROJECT_ID`, and
 `KHULNASOFT_TEAM_ID`; package-owned checks skip live examples safely when those
 secrets are unavailable.
+
+Pull requests run the Python 3.12 gate (`poe qa`, the news-fragment check, and
+`uv build --all-packages --no-sources`) plus the pre-commit workflow. Pushes to
+`main` and the nightly schedule also run the test suite on Python 3.10 through
+3.14.
 
 Auto-fix formatting and simple lint issues with:
 

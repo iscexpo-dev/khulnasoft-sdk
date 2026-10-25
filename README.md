@@ -349,7 +349,9 @@ uv run poe qa
 ```bash
 uv build --all-packages --no-sources
 ```
-- CI runs lint, typecheck, and tests, then builds every package.
+- Pull requests run `poe qa`, the news-fragment check, and a build of every
+  package on Python 3.12. Pushes to `main` and the nightly schedule also run the
+  tests on Python 3.10 through 3.14.
 - Release and publishing steps are documented in [`RELEASING.md`](RELEASING.md).
 
 ## License

@@ -26,6 +26,22 @@ Verified after Phase 0: `poe lint`, `poe typecheck`, the full `poe test` suite,
 `poe check-news-fragments`, `poe check-new-package-versions`, `uv lock --check`,
 and `zizmor --offline .`.
 
+Phase 1 completed on 2026-10-25:
+
+- S4: both workflows install with `uv sync --all-packages --frozen`; CI builds
+  with `uv build --all-packages --no-sources`.
+- S8: the pull-request lane runs `poe qa`, `poe check-news-fragments`, then the
+  build. Pushes to `main` and the nightly schedule run the full test matrix.
+- S14: pre-commit delegates lint and typecheck to the canonical Poe tasks; the
+  remaining hooks check whitespace, YAML, TOML, and large files.
+- S7: the matrix covers Python 3.10 through 3.14.
+- Fixed a latent pydantic `TypeAdapter` typing error in the workflow tests that
+  the canonical typecheck surfaced while validating the pre-commit hooks.
+
+Verified after Phase 1: `poe qa`, `pre-commit run --all-files`,
+`uv build --all-packages --no-sources`, `uv lock --check`, and
+`zizmor --offline .`.
+
 ## 1. Repository at a glance
 
 | Area | Location | Purpose |
@@ -162,7 +178,7 @@ Severity: P0 blocks reliable delivery; P1 causes drift or rework; P2 is polish.
 - Acceptance: CI can run `uv sync --frozen`; a lock-only dependency bump is a
   reviewable diff.
 
-### Phase 1 — One authoritative developer workflow (P0/P1)
+### Phase 1 — One authoritative developer workflow (P0/P1, completed)
 
 **S4 — Fix CI installation and build.**
 - Replace `uv venv` + `uv pip install -e .[dev]` with
@@ -315,7 +331,7 @@ uv run poe qa
 uv build --all-packages --no-sources
 ```
 
-From a fresh clone, repeat the same commands before merging Phase 0.
+From a fresh clone, repeat the same commands before merging Phase 1.
 
 ## 8. Open decisions
 
