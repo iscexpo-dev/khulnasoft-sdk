@@ -57,6 +57,22 @@ uv run poe test khulnasoft-oidc
 uv run poe typecheck khulnasoft-queue
 ```
 
+### Test Layout
+
+Tests live in three tiers:
+
+- `tests/` at the repository root covers workspace tooling: the task runner,
+  release and publishing scripts, and repository layout guards.
+- `src/khulnasoft/tests/` covers the `khulnasoft` meta package.
+- `<package>/tests/` covers that package. Tests that need live credentials live
+  under `tests/live/` and carry the `live` marker.
+
+Every package that defines a `live` marker or has a `tests/live/` directory must
+also add `-m 'not live'` to its pytest `addopts`, so the default run never
+reaches the network. A dedicated task may override the marker explicitly; see
+the Sandbox `test-live` task. `tests/unit/test_workspace_layout.py` enforces the
+default exclusion.
+
 Example tests are an opt-in workspace aggregate. Run all declared example
 tasks, or scope to one package and pass pytest arguments after `--`:
 
@@ -70,8 +86,9 @@ Each participating package owns its executable-example discovery, pytest
 runner and configuration, credential checks, setup, and cleanup. Packages opt
 in with a local `[tool.poe.tasks.test-examples]` declaration; packages without
 one are skipped by the unscoped aggregate and are rejected if explicitly
-requested. Root examples are run by the root package's internal
-`test-examples-root` task.
+requested. Cross-package examples belong in the root `examples/` directory;
+package-specific examples belong in `<package>/examples/`. Root examples are run
+by the root package's internal `test-examples-root` task.
 
 The canonical task does not acquire credentials automatically. For local
 Sandbox runs, supply an OIDC token explicitly when needed:
@@ -87,7 +104,7 @@ secrets are unavailable.
 Pull requests run the Python 3.12 gate (`poe qa`, the news-fragment check, and
 `uv build --all-packages --no-sources`) plus the pre-commit workflow. Pushes to
 `main` and the nightly schedule also run the test suite on Python 3.10 through
-3.14.
+3.14, and run `poe test-examples` as a post-merge signal.
 
 Auto-fix formatting and simple lint issues with:
 
