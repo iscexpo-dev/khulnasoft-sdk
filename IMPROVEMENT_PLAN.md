@@ -18,9 +18,13 @@ Phase 0 completed on 2026-10-25:
 - S2: `uv run poe clean` removes caches, coverage files, and build artifacts.
 - S17: `uv.lock` is tracked and `uv lock --check` passes.
 - S15/S16: onboarding docs now point at the canonical workspace commands.
+- The new-package version guard skips packages imported with prior release
+  versions via `scripts/release-migrated-packages.txt`, avoiding a false
+  positive on the migration.
 
 Verified after Phase 0: `poe lint`, `poe typecheck`, the full `poe test` suite,
-`poe check-news-fragments`, and `uv lock --check`.
+`poe check-news-fragments`, `poe check-new-package-versions`, `uv lock --check`,
+and `zizmor --offline .`.
 
 ## 1. Repository at a glance
 
@@ -322,3 +326,5 @@ From a fresh clone, repeat the same commands before merging Phase 0.
 - Coverage floor and whether the full 3.10–3.14 matrix is required for every PR or
   only on `main`.
 - Whether `vendor/respx` is a permanent fork or a temporary migration shim.
+- When to remove `scripts/release-migrated-packages.txt` after the migration
+  release.

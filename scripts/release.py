@@ -26,6 +26,7 @@ IGNORED_FRAGMENT_FILES = {".gitignore", ".gitkeep", ".keep"}
 BUMP_ORDER = {"patch": 0, "minor": 1, "major": 2}
 BUMP_NAMES = {value: key for key, value in BUMP_ORDER.items()}
 UNPUBLISHED_VERSION = "0.0.0"
+MIGRATED_PACKAGES_FILE = ROOT / "scripts" / "release-migrated-packages.txt"
 FRAGMENT_TYPES = {
     "breaking": "Breaking Changes",
     "feature": "Features",
@@ -870,9 +871,12 @@ def check_new_package_versions(base: str | None = None) -> int:
         return 1
 
     added_paths = _added_paths(base=base, head=head)
+    migrated = _migrated_packages()
     invalid: list[tuple[str, str]] = []
     for name, package in sorted(packages_by_name.items()):
         if package.path / "pyproject.toml" not in added_paths:
+            continue
+        if name in migrated:
             continue
         version = workspace.read_version(package.version_file)
         if version != UNPUBLISHED_VERSION:
@@ -947,6 +951,17 @@ def _added_paths(*, base: str, head: str | None) -> set[Path]:
         ["git", "diff", "--diff-filter=A", "--name-only", *diff_range], cwd=ROOT, text=True
     )
     return {ROOT / line for line in output.splitlines() if line}
+
+
+def _migrated_packages() -> set[str]:
+    if not MIGRATED_PACKAGES_FILE.exists():
+        return set()
+    names: set[str] = set()
+    for line in MIGRATED_PACKAGES_FILE.read_text(encoding="utf-8").splitlines():
+        name = line.split("#", 1)[0].strip()
+        if name:
+            names.add(name)
+    return names
 
 
 def _is_package_code_path(path: Path, package_path: Path) -> bool:

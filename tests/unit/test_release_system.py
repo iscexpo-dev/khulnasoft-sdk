@@ -1108,6 +1108,45 @@ def test_check_new_package_versions_rejects_publishable_version(
     assert "New packages must start at 0.0.0: pkg (0.1.0)" in capsys.readouterr().out
 
 
+def test_check_new_package_versions_ignores_migrated_packages(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    package_path = tmp_path / "khulnasoft-cache"
+    version_file = package_path / "khulnasoft/cache/version.py"
+    version_file.parent.mkdir(parents=True)
+    version_file.write_text('__version__ = "0.7.5"\n', encoding="utf-8")
+    package = workspace.Package("khulnasoft-cache", package_path, version_file, ())
+    monkeypatch.setattr(workspace, "packages", lambda: {"khulnasoft-cache": package})
+    monkeypatch.setattr(
+        release,
+        "_added_paths",
+        lambda *, base, head: {package_path / "pyproject.toml"},
+    )
+    monkeypatch.setattr(release, "_migrated_packages", lambda: {"khulnasoft-cache"})
+
+    assert release.check_new_package_versions(base="origin/main") == 0
+
+
+def test_check_new_package_versions_rejects_unlisted_package(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    package_path = tmp_path / "khulnasoft-newpkg"
+    version_file = package_path / "khulnasoft/newpkg/version.py"
+    version_file.parent.mkdir(parents=True)
+    version_file.write_text('__version__ = "0.1.0"\n', encoding="utf-8")
+    package = workspace.Package("khulnasoft-newpkg", package_path, version_file, ())
+    monkeypatch.setattr(workspace, "packages", lambda: {"khulnasoft-newpkg": package})
+    monkeypatch.setattr(
+        release,
+        "_added_paths",
+        lambda *, base, head: {package_path / "pyproject.toml"},
+    )
+    monkeypatch.setattr(release, "_migrated_packages", lambda: set())
+
+    assert release.check_new_package_versions(base="origin/main") == 1
+    assert "New packages must start at 0.0.0: khulnasoft-newpkg (0.1.0)" in capsys.readouterr().out
+
+
 def test_check_new_package_versions_accepts_unpublished_sentinel(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

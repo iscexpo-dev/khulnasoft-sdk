@@ -126,7 +126,11 @@ Use `uv run poe lint-towncrier` to validate existing news fragments. The Git
 `pre-push.news-fragments` hook enforces that changed package code has a
 news fragment, except while a package remains at the unpublished `0.0.0`
 sentinel. Add its first fragment when the package is ready for its initial
-`0.1.0` release. The hook does not replace the full lint/test/typecheck suite.
+`0.1.0` release. Packages imported from a previous release stream are listed in
+`scripts/release-migrated-packages.txt`; the check skips them so their existing
+versions are preserved. Keep that list limited to the migration and remove it
+after the migration release. The hook does not replace the full
+lint/test/typecheck suite.
 
 Release PR mechanics, version bump rules, dependency cascades, and publishing
 are documented in `RELEASING.md`.
