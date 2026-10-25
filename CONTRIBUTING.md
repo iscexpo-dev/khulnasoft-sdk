@@ -1,5 +1,8 @@
 # Contributing
 
+Please follow the [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md). Report security
+vulnerabilities as described in [`SECURITY.md`](SECURITY.md).
+
 ## Setup
 
 Install dependencies and local Git hooks:

@@ -353,6 +353,9 @@ uv build --all-packages --no-sources
   package on Python 3.12. Pushes to `main` and the nightly schedule also run the
   tests on Python 3.10 through 3.14.
 - Release and publishing steps are documented in [`RELEASING.md`](RELEASING.md).
+- Report security vulnerabilities as described in [`SECURITY.md`](SECURITY.md).
+- We follow the [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md); by participating you
+  agree to its terms.
 
 ## License
 
