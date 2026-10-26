@@ -349,9 +349,10 @@ uv run poe qa
 ```bash
 uv build --all-packages --no-sources
 ```
-- Pull requests run `poe qa`, the news-fragment check, and a build of every
-  package on Python 3.12. Pushes to `main` and the nightly schedule also run the
-  tests on Python 3.10 through 3.14.
+- Pull requests run `poe lint`, `poe typecheck`, `poe coverage`, the
+  news-fragment check, and a build of every package on Python 3.12. Pushes to
+  `main` and the nightly schedule also run the tests on Python 3.10 through
+  3.14.
 - Release and publishing steps are documented in [`RELEASING.md`](RELEASING.md).
 - Report security vulnerabilities as described in [`SECURITY.md`](SECURITY.md).
 - We follow the [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md); by participating you

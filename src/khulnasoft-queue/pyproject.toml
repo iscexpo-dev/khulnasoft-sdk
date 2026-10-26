@@ -12,7 +12,7 @@ license = "MIT"
 license-files = ["LICENSE", "LICENSE.*"]
 
 [tool.hatch.metadata.hooks.custom]
-path = "hatch_build.py"
+path = "_khulnasoft_hatch_build.py"
 
 [tool.khulnasoft.release.dependencies]
 dependencies = [
@@ -45,7 +45,7 @@ include = [
     "/khulnasoft/queue/py.typed",
     "/README.md",
     "/pyproject.toml",
-    "/hatch_build.py",
+    "/_khulnasoft_hatch_build.py",
     "/LICENSE",
 ]
 exclude = [
@@ -213,3 +213,6 @@ verbosity = -1
 cache_dir = "../../.mypy_cache/khulnasoft-queue"
 explicit_package_bases = true
 packages = ["khulnasoft.queue"]
+
+[tool.poe.tasks.test-examples]
+cmd = "$PYTEST tests/test_queue_examples.py"

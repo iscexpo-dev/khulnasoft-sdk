@@ -21,6 +21,8 @@ def _iter_python_files() -> list[Path]:
         if not base.is_dir():
             continue
         for path in base.rglob("*.py"):
+            if path.is_symlink():
+                continue
             if any(part in SKIP_DIRS for part in path.relative_to(ROOT).parts):
                 continue
             files.append(path)

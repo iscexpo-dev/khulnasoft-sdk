@@ -77,3 +77,50 @@ def test_live_marker_packages_exclude_live_tests_by_default() -> None:
         )
         checked.append(name)
     assert checked
+
+
+def test_every_package_owns_tests() -> None:
+    for name, package in workspace.packages().items():
+        tests = package.path / "tests"
+        assert tests.is_dir(), f"{name} must own a tests/ directory"
+        assert any(tests.rglob("test_*.py")), f"{name} must own at least one test module"
+
+
+def test_package_manifests_share_workspace_boilerplate() -> None:
+    for name, package in workspace.packages().items():
+        data = _pyproject(package)
+        tool = data.get("tool", {})
+
+        assert (package.path / "README.md").is_file(), f"{name} must ship a README"
+        assert (package.path / "LICENSE").is_file(), f"{name} must ship a LICENSE"
+        assert tool.get("poe", {}).get("include") == "../../scripts/poe/poe.toml", (
+            f"{name} must inherit the workspace PoE tasks"
+        )
+        assert "pytest" in tool, f"{name} must declare pytest options"
+
+
+def test_dynamic_metadata_hooks_use_shared_symlink() -> None:
+    checked = []
+    for name, package in workspace.packages().items():
+        hook = (
+            _pyproject(package)
+            .get("tool", {})
+            .get("hatch", {})
+            .get("metadata", {})
+            .get("hooks", {})
+            .get("custom")
+        )
+        if not hook:
+            continue
+
+        hook_path = package.path / "_khulnasoft_hatch_build.py"
+        assert hook.get("path") == "_khulnasoft_hatch_build.py", (
+            f"{name} must point Hatch at the shared hook shim"
+        )
+        assert hook_path.is_symlink(), f"{name} must symlink the shared Hatch hook"
+        assert hook_path.resolve() == workspace.ROOT / "scripts" / "hatch_build.py"
+        assert not (package.path / "hatch_build.py").exists(), (
+            f"{name} still has a duplicate hatch_build.py shim"
+        )
+        checked.append(name)
+    assert checked

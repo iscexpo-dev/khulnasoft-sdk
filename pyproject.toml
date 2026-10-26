@@ -115,10 +115,13 @@ mypy_path = [
 python-version = "3.10"
 root = ["./src", "./integrations"]
 
+[tool.ty.src]
+exclude = ["**/_khulnasoft_hatch_build.py"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py310"
-extend-exclude = ["vendor"]
+extend-exclude = ["vendor", "_khulnasoft_hatch_build.py"]
 
 [tool.ruff.lint]
 select = [

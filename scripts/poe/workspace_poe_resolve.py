@@ -1,34 +1,25 @@
 from __future__ import annotations
 
 import os
-import subprocess
 import sys
 from collections import OrderedDict
 from collections.abc import Iterable
+from pathlib import Path
 
 try:
     import tomllib
 except ModuleNotFoundError:  # pragma: no cover - Python 3.10 fallback
     import tomli as tomllib
 
-
-def uv_no_color(*args: str) -> list[str]:
-    env = os.environ.copy()
-    for name in ("FORCE_COLOR", "CLICOLOR_FORCE", "PY_COLORS"):
-        env.pop(name, None)
-    env["NO_COLOR"] = "1"
-    output = subprocess.check_output(("uv", *args), env=env, text=True)
-    return output.splitlines()
+WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
+if str(WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(WORKSPACE_ROOT))
 
 
-def workspace_packages() -> list[tuple[str, str]]:
-    return list(
-        zip(
-            uv_no_color("workspace", "list"),
-            uv_no_color("workspace", "list", "--paths"),
-            strict=True,
-        )
-    )
+def workspace_members() -> list[tuple[str, str]]:
+    from scripts.workspace import workspace_members as shared_workspace_members
+
+    return shared_workspace_members()
 
 
 ROOT_TASKS = {
@@ -109,7 +100,7 @@ def first_task_cwd(package_path: str, task_name: str) -> str:
 def main(argv: list[str]) -> int:
     root = os.getcwd()
     task_name = os.environ.get("WORKSPACE_POE_SCOPE_TASK", "")
-    packages = workspace_packages()
+    packages = workspace_members()
     package_paths = OrderedDict(packages)
     package_selected: set[str] = set()
     scoped_paths: dict[str, list[str]] = {}

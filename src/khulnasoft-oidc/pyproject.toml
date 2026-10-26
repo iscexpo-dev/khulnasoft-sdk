@@ -21,7 +21,7 @@ verify = [
 ]
 
 [tool.hatch.metadata.hooks.custom]
-path = "hatch_build.py"
+path = "_khulnasoft_hatch_build.py"
 
 [tool.khulnasoft.release.dependencies]
 dependencies = [
@@ -46,7 +46,7 @@ include = [
     "/README.md",
     "/khulnasoft/oidc/py.typed",
     "/pyproject.toml",
-    "/hatch_build.py",
+    "/_khulnasoft_hatch_build.py",
     "/LICENSE",
 ]
 exclude = [

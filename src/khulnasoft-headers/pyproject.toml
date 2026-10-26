@@ -12,7 +12,7 @@ license = "MIT"
 license-files = ["LICENSE", "LICENSE.*"]
 
 [tool.hatch.metadata.hooks.custom]
-path = "hatch_build.py"
+path = "_khulnasoft_hatch_build.py"
 
 [tool.khulnasoft.release.dependencies]
 dependencies = []
@@ -27,7 +27,7 @@ include = [
     "/khulnasoft/headers/py.typed",
     "/README.md",
     "/pyproject.toml",
-    "/hatch_build.py",
+    "/_khulnasoft_hatch_build.py",
     "/LICENSE",
 ]
 exclude = [
@@ -43,6 +43,12 @@ exclude = [
     "/**/__pycache__",
 ]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "../.."]
+addopts = "--no-header --capture=tee-sys"
+asyncio_mode = "auto"
+
 [tool.poe]
 include = "../../scripts/poe/poe.toml"
 verbosity = -1
@@ -54,6 +60,3 @@ packages = ["khulnasoft.headers"]
 
 [tool.poe.tasks.typecheck]
 cmd = "$MYPY"
-
-[tool.poe.tasks.test]
-cmd = "python -c \"pass\""

@@ -45,6 +45,17 @@ def _discover_examples(directory: Path) -> list[Path]:
 
 
 _example_files = _discover_examples(_examples_dir)
+_example_sources = sorted(_examples_dir.rglob("*.py"))
+
+
+@pytest.mark.parametrize(
+    "source_path",
+    _example_sources,
+    ids=lambda path: str(path.relative_to(_examples_dir)),
+)
+def test_example_source_compiles(source_path: Path) -> None:
+    """Every root example is valid Python, including nested deployable apps."""
+    compile(source_path.read_text(encoding="utf-8"), str(source_path), "exec")
 
 
 @pytest.mark.skipif(

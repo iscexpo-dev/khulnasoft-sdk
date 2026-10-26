@@ -12,7 +12,7 @@ license = "MIT"
 license-files = ["LICENSE", "LICENSE.*"]
 
 [tool.hatch.metadata.hooks.custom]
-path = "hatch_build.py"
+path = "_khulnasoft_hatch_build.py"
 
 [tool.khulnasoft.release.dependencies]
 dependencies = [
@@ -39,7 +39,7 @@ include = [
     "/khulnasoft/connect/py.typed",
     "/README.md",
     "/pyproject.toml",
-    "/hatch_build.py",
+    "/_khulnasoft_hatch_build.py",
     "/LICENSE",
 ]
 exclude = ["/**/__pycache__"]

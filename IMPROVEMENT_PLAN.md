@@ -42,6 +42,30 @@ Verified after Phase 1: `poe qa`, `pre-commit run --all-files`,
 `uv build --all-packages --no-sources`, `uv lock --check`, and
 `zizmor --offline .`.
 
+Phase 4 follow-up completed on 2026-10-26:
+
+- Consolidated workspace discovery: `scripts/poe/workspace_poe_resolve.py` now
+  imports `workspace_members()` from `scripts/workspace.py` instead of running
+  its own `uv workspace list` parser.
+- Added package-owned tests for `khulnasoft-headers` and
+  `khulnasoft-internal-telemetry`; the header context test moved out of the meta
+  package into its owner. Both packages no longer stub `poe test` with a no-op.
+- Wired `khulnasoft-queue` into `poe test-examples` with a source/compile check,
+  and made the root example harness compile nested example apps.
+- De-duplicated the PR gate: CI now runs `poe lint`, `poe typecheck`, and
+  `poe coverage` instead of running the full suite through both `poe qa` and
+  `poe coverage`.
+- Replaced the eleven duplicated `hatch_build.py` loader files with
+  `_khulnasoft_hatch_build.py` symlinks to `scripts/hatch_build.py`; sdists still
+  contain a real copy, and `uv build --all-packages --no-sources` rebuilds every
+  wheel from its sdist.
+- Added layout guards for owned tests, shared manifest boilerplate, and shared
+  Hatch hook symlinks in `tests/unit/test_workspace_layout.py`.
+
+Remaining from section 3: `khulnasoft._internal` vs `khulnasoft.internal`
+naming (S10), broad-except ratcheting (S19), and live queue example execution
+(static checks replace silent omission; they do not exercise delivery).
+
 ## 1. Repository at a glance
 
 | Area | Location | Purpose |
@@ -187,8 +211,9 @@ Severity: P0 blocks reliable delivery; P1 causes drift or rework; P2 is polish.
   `uv build --all-packages --no-sources` (or per-package builds in a matrix).
 - Acceptance: CI reaches lint/typecheck/test and produces all package artifacts.
 
-**S8 — Make `poe qa` the CI gate.**
-- Run `uv run poe qa`, then `uv run poe check-news-fragments`, then build.
+**S8 — Make the canonical workspace checks the CI gate.**
+- Run lint, typecheck, coverage, the news-fragment check, then build. Coverage
+  owns the test execution so the suite does not run twice.
 - Keep a fast single-version PR lane and a full matrix on `main`/nightly.
 - Acceptance: a change rejected by local `poe qa` cannot merge.
 

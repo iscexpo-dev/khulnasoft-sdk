@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import os
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -28,7 +29,13 @@ class Package:
 
 
 def _run_uv(args: list[str]) -> str:
-    return subprocess.check_output(["uv", *args], cwd=ROOT, text=True, stderr=subprocess.STDOUT)
+    env = os.environ.copy()
+    for name in ("FORCE_COLOR", "CLICOLOR_FORCE", "PY_COLORS"):
+        env.pop(name, None)
+    env["NO_COLOR"] = "1"
+    return subprocess.check_output(
+        ["uv", *args], cwd=ROOT, text=True, stderr=subprocess.STDOUT, env=env
+    )
 
 
 def _parse_json_output(output: str) -> Any:
@@ -43,6 +50,11 @@ def workspace_list(*, paths: bool = False) -> list[str]:
     if paths:
         args.append("--paths")
     return [line for line in _run_uv(args).splitlines() if line]
+
+
+def workspace_members() -> list[tuple[str, str]]:
+    """Return workspace package names paired with their paths."""
+    return list(zip(workspace_list(), workspace_list(paths=True), strict=True))
 
 
 def workspace_metadata(*, locked: bool = True) -> dict[str, Any]:

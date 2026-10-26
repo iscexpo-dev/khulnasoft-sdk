@@ -112,9 +112,9 @@ CI supplies `BLOB_READ_WRITE_TOKEN`, `KHULNASOFT_TOKEN`, `KHULNASOFT_PROJECT_ID`
 `KHULNASOFT_TEAM_ID`; package-owned checks skip live examples safely when those
 secrets are unavailable.
 
-Pull requests run the Python 3.12 gate (`poe qa`, the news-fragment check,
-`poe coverage`, and `uv build --all-packages --no-sources`) plus the pre-commit
-workflow. Pushes to
+Pull requests run the Python 3.12 gate (`poe lint`, `poe typecheck`,
+`poe coverage`, the news-fragment check, and
+`uv build --all-packages --no-sources`) plus the pre-commit workflow. Pushes to
 `main` and the nightly schedule also run the test suite on Python 3.10 through
 3.14, and run `poe test-examples` as a post-merge signal. The nightly schedule
 also audits the locked environment with `pip-audit` and uploads a CycloneDX

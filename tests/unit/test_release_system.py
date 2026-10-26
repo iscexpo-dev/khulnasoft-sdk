@@ -1584,7 +1584,7 @@ def test_edit_news_fragment_rejects_empty_content(monkeypatch: pytest.MonkeyPatc
 
 def test_package_hatch_build_loader_uses_shared_hook() -> None:
     spec = importlib.util.spec_from_file_location(
-        "test_package_hatch_build", Path("src/khulnasoft-headers/hatch_build.py")
+        "test_package_hatch_build", Path("src/khulnasoft-headers/_khulnasoft_hatch_build.py")
     )
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)

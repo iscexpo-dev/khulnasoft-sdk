@@ -130,11 +130,11 @@ through unchanged.
 
 Local development still uses `[tool.uv.sources]` workspace links.
 
-There is a tiny `hatch_build.py` loader in each package root because Hatch's
-custom metadata hook path is resolved relative to the package both during local
-builds and during wheel builds from sdists. The shared implementation lives in
-`scripts/hatch_build.py`, and sdists include it as `_khulnasoft_hatch_build.py` so
-sdist rebuilds are self-contained.
+Each package root has a `_khulnasoft_hatch_build.py` symlink to the shared
+`scripts/hatch_build.py` because Hatch resolves the custom metadata hook path
+relative to the package during local builds and during wheel builds from sdists.
+sdists include a real copy of the shared implementation at that path, so sdist
+rebuilds are self-contained without keeping a loader copy in every package.
 
 ## Publishing
 
