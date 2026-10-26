@@ -51,8 +51,6 @@ async def get_async_ops(session: Any = None) -> AsyncBlobOpsClient:
     from khulnasoft._internal.core.http.transport import AsyncTransport
 
     transport = sess.get_transport()
-    if not isinstance(transport, AsyncTransport):
-        transport = AsyncTransport(transport)  # type: ignore[arg-type]
 
     retry = RetryPolicy(retries=get_retries(), retry_on_response=_retry_on_blob_response)
     request_client = BlobRequestClient(
@@ -84,8 +82,6 @@ def get_sync_ops(session: Any = None) -> SyncBlobOpsClient:
     from khulnasoft._internal.core.http.transport import SyncTransport
 
     transport = sess.get_transport()
-    if not isinstance(transport, SyncTransport):
-        transport = SyncTransport(transport)  # type: ignore[arg-type]
 
     retry = RetryPolicy(retries=get_retries(), retry_on_response=_retry_on_blob_response)
     request_client = BlobRequestClient(
