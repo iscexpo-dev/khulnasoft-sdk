@@ -112,6 +112,7 @@ from khulnasoft.cache import AsyncRuntimeCache
 
 cache = AsyncRuntimeCache(namespace="demo")
 
+
 async def main():
     await cache.delete("greeting")
     await cache.set("greeting", {"hello": "world"}, {"ttl": 60, "tags": ["demo"]})
@@ -136,10 +137,12 @@ from khulnasoft.oidc import decode_oidc_payload, get_khulnasoft_oidc_token
 
 app = FastAPI()
 
+
 @app.middleware("http")
 async def khulnasoft_context_middleware(request: Request, call_next: Callable):
     set_headers(request.headers)
     return await call_next(request)
+
 
 @app.get("/oidc")
 def oidc():
@@ -234,13 +237,13 @@ result = auto_multipart_upload(
     large_data,  # bytes, file object, or iterator
     part_size=8 * 1024 * 1024,  # 8MB parts (default)
 )
-
 ```
 
 Asynchronous:
 
 ```python
 from khulnasoft.blob import auto_multipart_upload_async
+
 
 async def main():
     result = await auto_multipart_upload_async("large-file.bin", large_data)
