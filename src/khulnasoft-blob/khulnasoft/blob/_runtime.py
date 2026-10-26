@@ -48,8 +48,6 @@ async def get_async_ops(session: Any = None) -> AsyncBlobOpsClient:
         options = BlobServiceOptions()
     creds = await options.credentials_factory()
 
-    from khulnasoft._internal.core.http.transport import AsyncTransport
-
     transport = sess.get_transport()
 
     retry = RetryPolicy(retries=get_retries(), retry_on_response=_retry_on_blob_response)
@@ -78,8 +76,6 @@ def get_sync_ops(session: Any = None) -> SyncBlobOpsClient:
     if options is None:
         options = SyncBlobServiceOptions()
     creds = options.credentials_factory()
-
-    from khulnasoft._internal.core.http.transport import SyncTransport
 
     transport = sess.get_transport()
 
