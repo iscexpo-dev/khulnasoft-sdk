@@ -20,6 +20,7 @@ lograil = "2026-08-21T00:00:00Z"
 members = [
     "khulnasoft",
     "khulnasoft-apscheduler",
+    "khulnasoft-blob",
     "khulnasoft-cache",
     "khulnasoft-celery",
     "khulnasoft-connect",
@@ -1816,6 +1817,23 @@ requires-dist = [
     { name = "apscheduler", specifier = ">=3.10.4,<4" },
     { name = "khulnasoft-cache", editable = "src/khulnasoft-cache" },
     { name = "khulnasoft-queue", editable = "src/khulnasoft-queue" },
+]
+
+[[package]]
+name = "khulnasoft-blob"
+source = { editable = "src/khulnasoft-blob" }
+dependencies = [
+    { name = "anyio" },
+    { name = "httpx2", version = "2.14.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "httpx2", version = "2.16.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "khulnasoft-internal-core" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "anyio", specifier = ">=4.0.0,<5" },
+    { name = "httpx2", specifier = ">=2" },
+    { name = "khulnasoft-internal-core", editable = "src/khulnasoft-internal-core" },
 ]
 
 [[package]]

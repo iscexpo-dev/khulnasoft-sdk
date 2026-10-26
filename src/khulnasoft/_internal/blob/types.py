@@ -13,6 +13,7 @@ class PutBlobResult:
     pathname: str
     content_type: str
     content_disposition: str
+    etag: str | None = None
 
 
 @dataclass(slots=True)

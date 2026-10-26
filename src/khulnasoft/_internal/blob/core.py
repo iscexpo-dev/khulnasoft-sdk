@@ -305,6 +305,7 @@ def build_put_blob_result(raw: dict[str, Any]) -> PutBlobResultType:
         pathname=raw["pathname"],
         content_type=raw["contentType"],
         content_disposition=raw["contentDisposition"],
+        etag=raw.get("etag"),
     )
 
 
